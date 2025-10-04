@@ -21,4 +21,5 @@ from Main import views
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('',include('Main.urls')),
+    path('',include('Users.urls'))
 ]

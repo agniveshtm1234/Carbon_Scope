@@ -140,13 +140,7 @@
 <body>
 
   <!-- Navigation -->
-  <nav>
-    <a href="{% url 'Home Page' %}">Home</a>
-    <a href="#">About Us</a>
-    <a href="#">Contact</a>
-    <a href="#">Login</a>
-    <a href="{% url 'Register' %}">Register</a>
-  </nav>
+  {% include 'Menu.html' %}
 
   <!-- Moving Clouds -->
   <div class="clouds"></div>
