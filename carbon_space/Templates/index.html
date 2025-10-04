@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AeroScope | Air Quality Forecast</title>
+
+  <!-- Google Font -->
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+  <!-- Planetary.js Library -->
+  <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/planetaryjs@1.0.0/dist/planetaryjs.min.js"></script>
+  <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.17/d3.min.js"></script>
+  <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/topojson/1.6.19/topojson.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body, html {
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      font-family: 'Poppins', sans-serif;
+      color: white;
+      background: radial-gradient(circle at bottom, #001f3f, #000);
+    }
+
+    /* Navigation Bar */
+    nav {
+      position: absolute;
+      top: 0;
+      width: 100%;
+      background: rgba(0, 0, 0, 0.4);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 1em 0;
+      z-index: 10;
+      backdrop-filter: blur(6px);
+    }
+
+    nav a {
+      color: white;
+      text-decoration: none;
+      margin: 0 20px;
+      font-weight: 600;
+      letter-spacing: 0.5px;
+      transition: 0.3s;
+    }
+
+    nav a:hover {
+      color: #00ffff;
+    }
+
+    /* Moving Clouds */
+    .clouds {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 200%;
+      height: 100%;
+      background: url('clouds.png') repeat-x;
+      background-size: cover;
+      opacity: 0.4;
+      animation: moveClouds 60s linear infinite;
+      z-index: 1;
+    }
+
+    @keyframes moveClouds {
+      0% { transform: translateX(0); }
+      100% { transform: translateX(-50%); }
+    }
+
+    /* Overlay Text */
+    .overlay {
+      position: absolute;
+      top: 40%;
+      width: 100%;
+      text-align: center;
+      z-index: 5;
+    }
+
+    .overlay h1 {
+      font-size: 3rem;
+      text-shadow: 2px 2px 8px black;
+    }
+
+    .overlay p {
+      font-size: 1.2rem;
+      margin-top: 1rem;
+      opacity: 0.9;
+    }
+
+    .overlay button {
+      margin-top: 1.8rem;
+      padding: 0.8rem 1.8rem;
+      background: #00ffff;
+      border: none;
+      border-radius: 30px;
+      font-weight: bold;
+      font-size: 1rem;
+      cursor: pointer;
+      color: black;
+      transition: 0.3s ease;
+    }
+
+    .overlay button:hover {
+      background: #00b3b3;
+      transform: scale(1.05);
+    }
+
+    /* Planetary.js Canvas */
+    #planetCanvas {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 0;
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      .overlay h1 {
+        font-size: 2rem;
+      }
+      .overlay p {
+        font-size: 1rem;
+      }
+      nav a {
+        margin: 0 10px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Navigation -->
+  <nav>
+    <a href="#">Home</a>
+    <a href="#">About Us</a>
+    <a href="#">Contact</a>
+    <a href="#">Login</a>
+    <a href="#">Register</a>
+  </nav>
+
+  <!-- Moving Clouds -->
+  <div class="clouds"></div>
+
+  <!-- Overlay Text -->
+  <div class="overlay">
+    <h1>Forecasting Air Quality. Protecting Health.</h1>
+    <p>Integrating NASA TEMPO data, ground sensors, and weather insights to predict cleaner air for everyone.</p>
+    <button onclick="alert('Feature Coming Soon!')">Check My City’s Air Quality</button>
+  </div>
+
+  <!-- Planetary.js Globe -->
+  <canvas id="planetCanvas" width="800" height="800"></canvas>
+
+  <script>
+    (function() {
+      var planet = planetaryjs.planet();
+
+      // Load plugins
+      planet.loadPlugin(planetaryjs.plugins.earth({
+        topojson: {
+          file: 'https://raw.githubusercontent.com/mbostock/topojson/master/examples/world-110m.json'
+        },
+        oceans: { fill: '#000000' },
+        land: { fill: '#ffffff' },
+        borders: { stroke: '#000000' }
+      }));
+
+      planet.loadPlugin(planetaryjs.plugins.autorotate(10)); // Auto-rotate the globe
+
+      // Configure canvas
+      var canvas = document.getElementById('planetCanvas');
+      planet.configure({ canvas: canvas });
+
+      // Draw the globe
+      planet.draw();
+    })();
+  </script>
+
+</body>
+</html>

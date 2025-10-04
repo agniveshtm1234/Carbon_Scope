@@ -2,6 +2,9 @@ from django.shortcuts import render
 from geopy.geocoders import Nominatim
 
 # Create your views here.
+def home_page(request):
+    return render(request,'index.html')
+
 def track_location(request):
     location_data = None
     error = None
