@@ -113,8 +113,14 @@
     <button type="submit">Register</button>
   </form>
   <div class="login-link">
-    Already have an account? <a href="#">Login here</a>
+    Already have an account? <a href="{% url 'Login' %}">Login here</a>
   </div>
+  {% if User %}
+    <p style="color: green;text-align:center;">New User created with username {{User.username}}</p>
+  {% endif %}
+  {% if Error_Message %}
+    <p style="color: red;text-align:center;">{{Error_Message}}</p>
+  {% endif %}
 </div>
 </body>
 </html>

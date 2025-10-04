@@ -17,3 +17,20 @@ def register(request):
         except Exception as e:
             error_msg="Username Already Exists"
     return render(request,'Register.html',{'User':user,'Error_Message':error_msg})
+
+def Login(request):
+    error_msg=None
+    if request.POST:
+        uname=request.POST["username"]
+        passwd=request.POST["password"]
+        user=authenticate(username=uname,password=passwd)
+        if user:
+            login(request,user)
+            return redirect('All_data')
+        else:
+            error_msg="Invalid Credentials"
+    return render(request,'login.html',{'Error_Message':error_msg})
+
+def Logout(request):
+    logout(request)
+    return redirect('Login')

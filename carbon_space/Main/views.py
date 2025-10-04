@@ -1,5 +1,8 @@
 from django.shortcuts import render
 from geopy.geocoders import Nominatim
+import matplotlib.pyplot as plt
+import cartopy.crs as ccrs
+import cartopy.feature as cfeature
 
 # Create your views here.
 def home_page(request):
@@ -32,3 +35,18 @@ def track_location(request):
         "location_data": location_data,
         "error": error
     })
+
+def all_data(request):
+
+    fig = plt.figure(figsize=(10, 6))
+    ax = plt.axes(projection=ccrs.PlateCarree())
+
+    ax.add_feature(cfeature.BORDERS)
+    ax.add_feature(cfeature.COASTLINE)
+    ax.add_feature(cfeature.LAND, facecolor='lightgreen')
+    ax.add_feature(cfeature.OCEAN, facecolor='lightblue')
+
+    ax.set_title("World Map using Cartopy")
+    plt.show()
+
+    return render(request,'All_data.html')

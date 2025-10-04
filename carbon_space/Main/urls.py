@@ -21,4 +21,5 @@ from . import views
 urlpatterns = [
     path('',views.home_page,name='Home Page'),
     path('guest/',views.track_location,name='Guest'),
+    path('all_data/',views.all_data,name='All_data')
 ]
