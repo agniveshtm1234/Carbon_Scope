@@ -1,9 +1,6 @@
 from django.shortcuts import render
 from geopy.geocoders import Nominatim
-import geopandas as gpd
-import pandas as pd
-import geodatasets
-import folium
+
 # Create your views here.
 def home_page(request):
     return render(request,'index.html')
