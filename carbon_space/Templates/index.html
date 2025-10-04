@@ -104,7 +104,6 @@
       font-weight: bold;
       font-size: 1rem;
       cursor: pointer;
-      color: black;
       transition: 0.3s ease;
     }
 
@@ -138,9 +137,14 @@
   </style>
 </head>
 <body>
-
   <!-- Navigation -->
-  {% include 'Menu.html' %}
+  <nav>
+    <a href="{% url 'Home Page' %}">Home</a>
+    <a href="#">About Us</a>
+    <a href="#">Contact</a>
+    <a href="#">Login</a>
+    <a href="{% url 'Register' %}">Register</a>
+  </nav>
 
   <!-- Moving Clouds -->
   <div class="clouds"></div>
@@ -149,7 +153,7 @@
   <div class="overlay">
     <h1>Forecasting Air Quality. Protecting Health.</h1>
     <p>Integrating NASA TEMPO data, ground sensors, and weather insights to predict cleaner air for everyone.</p>
-    <button onclick="alert('Feature Coming Soon!')">Check My City’s Air Quality</button>
+    <button><a href="{% url 'Guest' %}" style="text-decoration: none; color: black;">Check My City’s Air Quality</a></button>
   </div>
 
   <!-- Planetary.js Globe -->
@@ -179,6 +183,5 @@
       planet.draw();
     })();
   </script>
-
 </body>
 </html>
