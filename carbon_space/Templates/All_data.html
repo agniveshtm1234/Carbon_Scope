@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>World Air Quality Map</title>
+  <link
+    rel="stylesheet"
+    href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+  />
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    body {
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+      font-family: Arial, sans-serif;
+    }
+    header {
+      background-color: #2c3e50;
+      color: white;
+      text-align: center;
+      padding: 10px;
+      font-size: 1.5rem;
+    }
+    #map {
+      flex: 1;
+      width: 100%;
+    }
+    .legend {
+      position: absolute;
+      top: 80px;
+      right: 20px;
+      background: white;
+      padding: 12px;
+      border-radius: 8px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+      line-height: 1.5;
+      font-size: 14px;
+    }
+    .legend h4 {
+      margin-bottom: 8px;
+    }
+    .color-box {
+      display: inline-block;
+      width: 18px;
+      height: 18px;
+      margin-right: 6px;
+      border: 1px solid #333;
+    }
+    @media (max-width: 768px) {
+      .legend {
+        top: auto;
+        bottom: 20px;
+        right: 10px;
+        font-size: 12px;
+      }
+      header {
+        font-size: 1.2rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header>🌍 World Air Quality Index (AQI) Map</header>
+  <div id="map"></div>
+  <div class="legend">
+    <h4>Air Quality Levels</h4>
+    <div><span class="color-box" style="background:green"></span>Good (0–50)</div>
+    <div><span class="color-box" style="background:yellow"></span>Moderate (51–100)</div>
+    <div><span class="color-box" style="background:red"></span>Unhealthy (>100)</div>
+  </div>
+
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script>
+    // Create the map
+    const map = L.map("map").setView([20, 0], 2);
+
+    // Add a tile layer
+    L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+      attribution: "&copy; OpenStreetMap contributors"
+    }).addTo(map);
+
+    // Example AQI data (lat, lon, AQI value)
+    const aqiData = [
+      { name: "Delhi, India", coords: [28.6, 77.2], aqi: 220 },
+      { name: "Beijing, China", coords: [39.9, 116.4], aqi: 180 },
+      { name: "Los Angeles, USA", coords: [34.05, -118.25], aqi: 95 },
+      { name: "São Paulo, Brazil", coords: [-23.55, -46.63], aqi: 70 },
+      { name: "Sydney, Australia", coords: [-33.87, 151.21], aqi: 45 },
+      { name: "London, UK", coords: [51.51, -0.13], aqi: 60 },
+      { name: "Cape Town, South Africa", coords: [-33.92, 18.42], aqi: 40 }
+    ];
+
+    // Function to set color based on AQI
+    function getColor(aqi) {
+      if (aqi > 100) return "red";
+      else if (aqi >= 51) return "yellow";
+      else return "green";
+    }
+
+    // Add circles to map
+    aqiData.forEach((loc) => {
+      const color = getColor(loc.aqi);
+      L.circleMarker(loc.coords, {
+        color: color,
+        fillColor: color,
+        fillOpacity: 0.7,
+        radius: 10
+      })
+        .addTo(map)
+        .bindPopup(`<b>${loc.name}</b><br>AQI: ${loc.aqi}`);
+    });
+  </script>
+</body>
+</html>
