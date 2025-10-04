@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Location Tracker</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            padding: 2rem;
+        }
+        h1 { margin-bottom: 1rem; }
+        form {
+            background: white;
+            color: #333;
+            padding: 2rem;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        }
+        input[type="text"] {
+            padding: 0.5rem;
+            width: 250px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+        }
+        button {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            margin-left: 10px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .result {
+            margin-top: 1.5rem;
+            background: rgba(255,255,255,0.1);
+            padding: 1rem;
+            border-radius: 8px;
+        }
+        .error {
+            background: #ff6b6b;
+            color: white;
+            padding: 0.8rem;
+            border-radius: 6px;
+            margin-top: 1rem;
+        }
+    </style>
+</head>
+<body>
+    <h1>🌍 Location Tracker</h1>
+
+    <form method="POST">
+        {% csrf_token %}
+        <input type="text" name="location" placeholder="Enter location name" required>
+        <button type="submit">Track</button>
+    </form>
+
+    {% if location_data %}
+    <div class="result">
+        <h3>📍 {{ location_data.name }}</h3>
+        <p><strong>Latitude:</strong> {{ location_data.latitude }}</p>
+        <p><strong>Longitude:</strong> {{ location_data.longitude }}</p>
+        <p><strong>Address:</strong> {{ location_data.address }}</p>
+    </div>
+    {% endif %}
+
+    {% if error %}
+    <div class="error">{{ error }}</div>
+    {% endif %}
+</body>
+</html>
