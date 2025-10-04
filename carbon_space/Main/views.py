@@ -9,7 +9,7 @@ def track_location(request):
     location_data = None
     error = None
 
-    if request.method == "POST":
+    if request.POST:
         location_name = request.POST.get("location")
         if location_name:
             try:
