@@ -1,5 +1,6 @@
 from django.shortcuts import render
 from geopy.geocoders import Nominatim
+from django.contrib.auth.decorators import login_required
 
 # Create your views here.
 def home_page(request):
@@ -33,5 +34,6 @@ def track_location(request):
         "error": error
     })
 
+@login_required(login_url='login/')
 def all_data(request):
     return render(request,'All_data.html')
