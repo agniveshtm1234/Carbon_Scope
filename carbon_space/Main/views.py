@@ -12,3 +12,6 @@ def user_data(request):
 
 def guest(request):
     return render(request,'Guest.html')
+
+def dashboard(request):
+    return render(request,'Dashboard.html')

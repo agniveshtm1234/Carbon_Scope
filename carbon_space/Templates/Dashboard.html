@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Delhi Carbon Emission Dashboard</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: "Poppins", sans-serif;
+    }
+
+    body {
+      background-color: #f5f7fa;
+      color: #333;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-height: 100vh;
+    }
+
+    header {
+      width: 100%;
+      background: #2c3e50;
+      color: white;
+      text-align: center;
+      padding: 15px 0;
+      font-size: 1.6rem;
+      letter-spacing: 1px;
+    }
+
+    .container {
+      width: 90%;
+      max-width: 1000px;
+      background: white;
+      border-radius: 10px;
+      padding: 20px;
+      margin-top: 25px;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    }
+
+    h2 {
+      text-align: center;
+      margin-bottom: 15px;
+      color: #2c3e50;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
+    }
+
+    th, td {
+      border: 1px solid #ccc;
+      padding: 10px;
+      text-align: center;
+    }
+
+    th {
+      background: #2c3e50;
+      color: white;
+    }
+
+    tr:nth-child(even) {
+      background: #f2f2f2;
+    }
+
+    .chart-container {
+      margin-top: 30px;
+      width: 100%;
+    }
+
+    @media (max-width: 768px) {
+      header {
+        font-size: 1.3rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header>🌱 Delhi Carbon Emission Dashboard</header>
+
+  <div class="container">
+    <h2>City-wise Emission Data</h2>
+
+    <!-- Table -->
+    <table id="dataTable">
+      <thead>
+        <tr>
+          <th>City</th>
+          <th>AQI</th>
+          <th>Carbon (tCO₂)</th>
+          <th>Population</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+
+    <!-- Chart -->
+    <div class="chart-container">
+      <canvas id="carbonChart"></canvas>
+    </div>
+  </div>
+
+  <script>
+    // City Data
+    const cityData = [
+      { name: "Central Delhi", aqi: 260, carbon: 2.1, population: 15000 },
+      { name: "North Delhi", aqi: 240, carbon: 2.3, population: 16500 },
+      { name: "South Delhi", aqi: 190, carbon: 1.8, population: 13500 },
+      { name: "East Delhi", aqi: 210, carbon: 2.0, population: 17500 },
+      { name: "West Delhi", aqi: 200, carbon: 1.7, population: 15500 },
+      { name: "New Delhi", aqi: 185, carbon: 1.5, population: 14200 },
+      { name: "Rohini", aqi: 230, carbon: 2.2, population: 15800 },
+      { name: "Dwarka", aqi: 175, carbon: 1.6, population: 12500 },
+      { name: "Karol Bagh", aqi: 250, carbon: 2.4, population: 16200 },
+      { name: "Chandni Chowk", aqi: 270, carbon: 2.5, population: 17000 }
+    ];
+
+    const tableBody = document.querySelector("#dataTable tbody");
+    const ctx = document.getElementById("carbonChart").getContext("2d");
+
+    // Render table
+    function renderTable() {
+      tableBody.innerHTML = "";
+      cityData.forEach((city) => {
+        tableBody.innerHTML += `
+          <tr>
+            <td>${city.name}</td>
+            <td>${city.aqi}</td>
+            <td>${city.carbon}</td>
+            <td>${city.population}</td>
+          </tr>
+        `;
+      });
+    }
+
+    // Render chart
+    function renderChart() {
+      const labels = cityData.map((c) => c.name);
+      const carbonValues = cityData.map((c) => c.carbon);
+      const aqiValues = cityData.map((c) => c.aqi);
+
+      new Chart(ctx, {
+        type: "bar",
+        data: {
+          labels: labels,
+          datasets: [
+            {
+              label: "Carbon Emission (tCO₂)",
+              data: carbonValues,
+              backgroundColor: "#27ae60",
+            },
+            {
+              label: "AQI Levels",
+              data: aqiValues,
+              backgroundColor: "#e67e22",
+            }
+          ]
+        },
+        options: {
+          responsive: true,
+          scales: {
+            y: { beginAtZero: true }
+          },
+          plugins: {
+            legend: { position: "top" }
+          }
+        }
+      });
+    }
+
+    // Initialize
+    renderTable();
+    renderChart();
+  </script>
+</body>
+</html>
