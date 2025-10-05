@@ -26,7 +26,7 @@ def Login(request):
         user=authenticate(username=uname,password=passwd)
         if user:
             login(request,user)
-            return redirect('All_data')
+            return redirect('User_Data')
         else:
             error_msg="Invalid Credentials"
     return render(request,'login.html',{'Error_Message':error_msg})

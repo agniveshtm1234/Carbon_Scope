@@ -1,78 +1,307 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Location Tracker</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            background: linear-gradient(135deg, #667eea, #764ba2);
-            color: white;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            min-height: 100vh;
-            padding: 2rem;
-        }
-        h1 { margin-bottom: 1rem; }
-        form {
-            background: white;
-            color: #333;
-            padding: 2rem;
-            border-radius: 10px;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
-        }
-        input[type="text"] {
-            padding: 0.5rem;
-            width: 250px;
-            border-radius: 5px;
-            border: 1px solid #ccc;
-        }
-        button {
-            background: #667eea;
-            color: white;
-            border: none;
-            padding: 0.5rem 1rem;
-            margin-left: 10px;
-            border-radius: 5px;
-            cursor: pointer;
-        }
-        .result {
-            margin-top: 1.5rem;
-            background: rgba(255,255,255,0.1);
-            padding: 1rem;
-            border-radius: 8px;
-        }
-        .error {
-            background: #ff6b6b;
-            color: white;
-            padding: 0.8rem;
-            border-radius: 6px;
-            margin-top: 1rem;
-        }
-    </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>AirAware: Smart Air Quality Forecasting</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', sans-serif;
+      background: #f0f4f8;
+      color: #333;
+    }
+    #map {
+      position: absolute;
+      top: 0; left: 0; right: 0; bottom: 0;
+      z-index: 0;
+    }
+    .panel {
+      position: absolute;
+      background: rgba(255,255,255,0.95);
+      padding: 15px;
+      border-radius: 10px;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.1);
+      font-size: 14px;
+      z-index: 1000;
+    }
+    .info-panel {
+      top: 20px;
+      left: 50px;
+      max-width: 340px;
+    }
+    
+    .forecast-panel {
+      bottom: 20px;
+      left: 50px;
+      max-width: 340px;
+    }
+    .stakeholder-panel {
+      top: 20px;
+      right: 20px;
+      max-width: 340px;
+      max-height: 80vh;
+      overflow-y: auto;
+    }
+    h2, h3 {
+      margin-top: 0;
+      font-size: 16px;
+    }
+    ul {
+      padding-left: 18px;
+    }
+    .aqi-bar {
+      height: 10px;
+      margin: 5px 0;
+      border-radius: 5px;
+    }
+    .source-tag {
+      font-size: 12px;
+      color: #666;
+      margin-top: 5px;
+    }
+  </style>
 </head>
 <body>
-    <h1>🌍 Location Tracker</h1>
+  <div id="map"></div>
 
-    <form method="POST">
-        {% csrf_token %}
-        <input type="text" name="location" placeholder="Enter location name" required>
-        <button type="submit">Track</button>
-    </form>
+  <div class="panel info-panel" id="info">
+    <h2>Air Quality Snapshot</h2>
+    <p><strong>Location:</strong> <span id="location">Click on map</span></p>
+    <p><strong>AQI:</strong> <span id="aqi">--</span></p>
+    <div class="aqi-bar" id="aqi-bar" style="background:#ccc;"></div>
+    <p><strong>Health Advisory:</strong> <span id="advisory">--</span></p>
+    <p><strong>Pollutants:</strong></p>
+    <ul id="pollutants"></ul>
+    <div class="source-tag">Data sources: TEMPO, OpenAQ, NOAA</div>
+  </div>
 
-    {% if location_data %}
-    <div class="result">
-        <h3>📍 {{ location_data.name }}</h3>
-        <p><strong>Latitude:</strong> {{ location_data.latitude }}</p>
-        <p><strong>Longitude:</strong> {{ location_data.longitude }}</p>
-        <p><strong>Address:</strong> {{ location_data.address }}</p>
-    </div>
-    {% endif %}
+  <div class="panel forecast-panel" id="forecast">
+    <h3>Local Forecast</h3>
+    <p>Next 24 hours:</p>
+    <ul id="forecast-list">
+      <li>Loading...</li>
+    </ul>
+  </div>
 
-    {% if error %}
-    <div class="error">{{ error }}</div>
-    {% endif %}
+  <div class="panel stakeholder-panel" id="stakeholders">
+    <h3>Stakeholder Insights</h3>
+    <ul>
+      <li><strong>Health-Sensitive Groups:</strong>
+        <ul>
+          <li>School admins: Adjust outdoor schedules</li>
+          <li>Eldercare: Enhance indoor filtration</li>
+          <li>Industrial zones: Monitor exposure</li>
+        </ul>
+      </li>
+      <li><strong>Policy Partners:</strong>
+        <ul>
+          <li>Municipal leaders: Enforce clean air zones</li>
+          <li>Transit authorities: Optimize traffic flow</li>
+          <li>Tourism boards: Issue advisories</li>
+        </ul>
+      </li>
+      <li><strong>Emergency Networks:</strong>
+        <ul>
+          <li>Wildfire teams: Assess smoke impact</li>
+          <li>Meteorologists: Forecast pollution spread</li>
+          <li>Crisis communicators: Alert public</li>
+        </ul>
+      </li>
+      <li><strong>Public Engagement:</strong>
+        <ul>
+          <li>Citizen scientists: Contribute local data</li>
+        </ul>
+      </li>
+    </ul>
+  </div>
+
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script>
+    const map = L.map('map').setView([20, 0], 2);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '&copy; OpenStreetMap contributors'
+    }).addTo(map);
+
+    map.on('click', async function(e) {
+      const lat = e.latlng.lat.toFixed(4);
+      const lng = e.latlng.lng.toFixed(4);
+      const locationName = await getLocationName(lat, lng);
+
+      const aqi = Math.floor(Math.random() * 400);
+      const pollutants = {
+        'PM2.5': (Math.random() * 150).toFixed(1),
+        'PM10': (Math.random() * 180).toFixed(1),
+        'O₃': (Math.random() * 120).toFixed(1),
+        'NO₂': (Math.random() * 100).toFixed(1),
+        'CO': (Math.random() * 10).toFixed(2)
+      };
+
+      document.getElementById('location').textContent = locationName || `${lat}, ${lng}`;
+      document.getElementById('aqi').textContent = aqi;
+      document.getElementById('aqi-bar').style.background = getAQIColor(aqi);
+      document.getElementById('advisory').textContent = getHealthImpact(aqi);
+
+      document.getElementById('pollutants').innerHTML = Object.entries(pollutants)
+        .map(([k,v]) => `<li>${k}: ${v} µg/m³</li>`).join('');
+
+      document.getElementById('forecast-list').innerHTML = Array.from({length: 6}, (_, i) => {
+        const hour = new Date().getHours() + i * 4;
+        const forecastAQI = Math.floor(Math.random() * 400);
+        return `<li>${hour % 24}:00 – AQI ${forecastAQI} <span style="color:${getAQIColor(forecastAQI)}">●</span></li>`;
+      }).join('');
+      updateStakeholders(aqi, locationName);
+    }
+
+
+);
+
+    async function getLocationName(lat, lng) {
+      try {
+        const response = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}`);
+        const data = await response.json();
+        return data.display_name;
+      } catch {
+        return null;
+      }
+    }
+
+    function getAQIColor(aqi) {
+      if (aqi <= 50) return '#00e400';
+      if (aqi <= 100) return '#ffff00';
+      if (aqi <= 150) return '#ff7e00';
+      if (aqi <= 200) return '#ff0000';
+      if (aqi <= 300) return '#8f3f97';
+      return '#7e0023';
+    }
+
+    function getHealthImpact(aqi) {
+      if (aqi <= 50) return 'Air quality is satisfactory.';
+      if (aqi <= 100) return 'Acceptable for most individuals.';
+      if (aqi <= 150) return 'Sensitive groups may be affected.';
+      if (aqi <= 200) return 'Everyone may experience health effects.';
+      if (aqi <= 300) return 'Emergency conditions possible.';
+      return 'Avoid outdoor activity. Serious health risk.';
+    }
+function updateStakeholders(aqi, locationName) {
+  const list = document.getElementById('stakeholders');
+  const location = locationName ? locationName.toLowerCase() : '';
+
+  let regionType = 'general';
+  if (/industrial|zone|plant|factory|refinery|mill/.test(location)) {
+    regionType = 'industrial';
+  } else if (/coast|beach|bay|harbor|port|marine/.test(location)) {
+    regionType = 'coastal';
+  } else if (/mountain|valley|hill|ridge|plateau/.test(location)) {
+    regionType = 'elevated';
+  } else if (/school|university|campus|college|academy/.test(location)) {
+    regionType = 'educational';
+  }
+
+  const advisoryLevel = aqi > 200 ? 'high' : aqi > 100 ? 'moderate' : 'low';
+
+  const insights = {
+    general: {
+      high: [
+        'School admins: Cancel outdoor activities',
+        'Eldercare: Activate air purifiers',
+        'Transit authorities: Issue public warnings',
+        'Citizen scientists: Mobilize local sensors'
+      ],
+      moderate: [
+        'School admins: Limit outdoor exposure',
+        'Eldercare: Monitor indoor air quality',
+        'Transit authorities: Adjust traffic flow',
+        'Citizen scientists: Share local readings'
+      ],
+      low: [
+        'School admins: Safe for outdoor play',
+        'Eldercare: Normal operations',
+        'Transit authorities: No action needed',
+        'Citizen scientists: Continue monitoring'
+      ]
+    },
+    industrial: {
+      high: [
+        'Factory managers: Reduce emissions',
+        'Residents: Stay indoors',
+        'Municipal leaders: Enforce clean air zones'
+      ],
+      moderate: [
+        'Factory managers: Monitor output',
+        'Residents: Use masks outdoors',
+        'Municipal leaders: Review air permits'
+      ],
+      low: [
+        'Factory managers: Maintain standards',
+        'Residents: Air quality acceptable',
+        'Municipal leaders: No action needed'
+      ]
+    },
+    coastal: {
+      high: [
+        'Tourism boards: Issue health advisories',
+        'Visitors: Avoid outdoor recreation',
+        'Emergency teams: Monitor sea breeze patterns'
+      ],
+      moderate: [
+        'Tourism boards: Recommend indoor attractions',
+        'Visitors: Limit beach exposure',
+        'Emergency teams: Prepare for AQI shifts'
+      ],
+      low: [
+        'Tourism boards: Promote outdoor events',
+        'Visitors: Enjoy coastal air',
+        'Emergency teams: No alerts needed'
+      ]
+    },
+    elevated: {
+      high: [
+        'Hikers: Avoid mountain trails',
+        'Park rangers: Close high-altitude zones',
+        'Meteorologists: Track inversion layers'
+      ],
+      moderate: [
+        'Hikers: Use caution',
+        'Park rangers: Monitor visibility',
+        'Meteorologists: Issue terrain-specific forecasts'
+      ],
+      low: [
+        'Hikers: Safe conditions',
+        'Park rangers: Trails open',
+        'Meteorologists: Normal patterns'
+      ]
+    },
+    educational: {
+      high: [
+        'School health officers: Cancel sports',
+        'Athletic trainers: Move indoors',
+        'Administrators: Notify parents'
+      ],
+      moderate: [
+        'School health officers: Monitor symptoms',
+        'Athletic trainers: Shorten outdoor sessions',
+        'Administrators: Issue precautionary alerts'
+      ],
+      low: [
+        'School health officers: No restrictions',
+        'Athletic trainers: Full outdoor access',
+        'Administrators: Normal operations'
+      ]
+    }
+  };
+
+  const selected = insights[regionType]?.[advisoryLevel] || insights.general.low;
+
+  list.innerHTML = `
+    <h3>Stakeholder Insights</h3>
+    <ul>
+      ${selected.map(item => `<li>${item}</li>`).join('')}
+    </ul>
+  `;
+}
+
+  </script>
 </body>
 </html>

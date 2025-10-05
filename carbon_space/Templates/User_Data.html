@@ -180,19 +180,32 @@
 
     // Sample AQI + Carbon + Population data
     const cityData = [
-      { name: "Delhi, India", coords: [28.6, 77.2], aqi: 220, carbon: 1.9, population: 11320 },
-      { name: "Beijing, China", coords: [39.9, 116.4], aqi: 180, carbon: 7.4, population: 13000 },
-      { name: "Los Angeles, USA", coords: [34.05, -118.25], aqi: 95, carbon: 15.6, population: 3300 },
-      { name: "São Paulo, Brazil", coords: [-23.55, -46.63], aqi: 70, carbon: 2.8, population: 7500 },
-      { name: "Sydney, Australia", coords: [-33.87, 151.21], aqi: 45, carbon: 17.3, population: 430 },
-      { name: "London, UK", coords: [51.51, -0.13], aqi: 60, carbon: 5.8, population: 5600 },
-      { name: "Cape Town, South Africa", coords: [-33.92, 18.42], aqi: 40, carbon: 9.2, population: 1600 }
+      { name: "Central Delhi", coords: [28.65, 77.23], aqi: 260, carbon: 2.1, population: 15000 },
+      { name: "North Delhi", coords: [28.72, 77.17], aqi: 240, carbon: 2.3, population: 16500 },
+      { name: "South Delhi", coords: [28.53, 77.25], aqi: 190, carbon: 1.8, population: 13500 },
+      { name: "East Delhi", coords: [28.63, 77.30], aqi: 210, carbon: 2.0, population: 17500 },
+      { name: "West Delhi", coords: [28.65, 77.09], aqi: 200, carbon: 1.7, population: 15500 },
+      { name: "New Delhi", coords: [28.61, 77.21], aqi: 185, carbon: 1.5, population: 14200 },
+      { name: "Rohini", coords: [28.74, 77.11], aqi: 230, carbon: 2.2, population: 15800 },
+      { name: "Dwarka", coords: [28.57, 77.04], aqi: 175, carbon: 1.6, population: 12500 },
+      { name: "Karol Bagh", coords: [28.65, 77.19], aqi: 250, carbon: 2.4, population: 16200 },
+      { name: "Vasant Kunj", coords: [28.52, 77.15], aqi: 170, carbon: 1.4, population: 11800 },
+      { name: "Saket", coords: [28.52, 77.23], aqi: 180, carbon: 1.5, population: 13000 },
+      { name: "Narela", coords: [28.83, 77.10], aqi: 195, carbon: 1.9, population: 9800 },
+      { name: "Najafgarh", coords: [28.61, 76.98], aqi: 160, carbon: 1.3, population: 10500 },
+      { name: "Okhla", coords: [28.53, 77.28], aqi: 220, carbon: 2.0, population: 15000 },
+      { name: "Mayur Vihar", coords: [28.61, 77.30], aqi: 210, carbon: 1.9, population: 14000 },
+      { name: "Lajpat Nagar", coords: [28.57, 77.24], aqi: 205, carbon: 1.8, population: 15500 }, 
+      { name: "Connaught Place", coords: [28.63, 77.22], aqi: 215, carbon: 1.9, population: 14500 },
+      { name: "Chandni Chowk", coords: [28.66, 77.23], aqi: 270, carbon: 2.5, population: 17000 },
+      { name: "Ashok Vihar", coords: [28.69, 77.17], aqi: 230, carbon: 2.1, population: 15000 },
+      { name: "Janakpuri", coords: [28.62, 77.08], aqi: 200, carbon: 1.6, population: 13800 }
     ];
 
     // Color by AQI
     function getColor(aqi) {
-      if (aqi > 100) return "red";
-      else if (aqi >= 51) return "yellow";
+      if (aqi > 200) return "red";
+      else if (aqi > 100) return "yellow";
       else return "green";
     }
 
