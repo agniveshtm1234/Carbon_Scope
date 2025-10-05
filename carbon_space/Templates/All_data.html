@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>World Air Quality Map</title>
+  <title>World Air Quality & Emission Map</title>
   <link
     rel="stylesheet"
     href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
@@ -14,37 +14,69 @@
       padding: 0;
       box-sizing: border-box;
     }
+
     body {
       display: flex;
       flex-direction: column;
       height: 100vh;
       font-family: Arial, sans-serif;
     }
+
+    /* Header */
     header {
       background-color: #2c3e50;
       color: white;
-      text-align: center;
-      padding: 10px;
-      font-size: 1.5rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px 20px;
     }
+
+    header h1 {
+      font-size: 1.5rem;
+      margin-left: 18em;
+    }
+
+    /* Logout Button */
+    .logout-btn {
+      background-color: #e74c3c;
+      color: white;
+      border: none;
+      padding: 8px 16px;
+      border-radius: 5px;
+      font-size: 14px;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+
+    .logout-btn:hover {
+      background-color: #c0392b;
+    }
+
     #map {
+      position: relative;
       flex: 1;
       width: 100%;
     }
+
+    /* ✅ AQI Legend (Right corner) */
     .legend {
       position: absolute;
-      top: 80px;
+      top: 20px;
       right: 20px;
       background: white;
-      padding: 12px;
+      padding: 12px 16px;
       border-radius: 8px;
-      box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
       line-height: 1.5;
       font-size: 14px;
+      z-index: 1000;
     }
+
     .legend h4 {
       margin-bottom: 8px;
     }
+
     .color-box {
       display: inline-block;
       width: 18px;
@@ -52,69 +84,142 @@
       margin-right: 6px;
       border: 1px solid #333;
     }
+
+    /* ✅ Carbon & Population Legend (Left corner) */
+    .left-legend {
+      position: absolute;
+      bottom: 20px;
+      left: 20px;
+      background: white;
+      padding: 14px 16px;
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+      font-size: 14px;
+      line-height: 1.6;
+      z-index: 1000;
+      width: 220px;
+    }
+
+    .gradient-bar {
+      height: 14px;
+      border-radius: 5px;
+      margin: 5px 0;
+      border: 1px solid #333;
+    }
+
+    .carbon-gradient {
+      background: linear-gradient(to right, #00ff00, #ffff00, #ff0000);
+    }
+
+    .population-gradient {
+      background: linear-gradient(to right, #a8dadc, #457b9d, #1d3557);
+    }
+
     @media (max-width: 768px) {
-      .legend {
-        top: auto;
-        bottom: 20px;
-        right: 10px;
+      header h1 {
+        font-size: 1.2rem;
+      }
+
+      .logout-btn {
+        padding: 6px 12px;
         font-size: 12px;
       }
-      header {
-        font-size: 1.2rem;
+
+      .legend,
+      .left-legend {
+        font-size: 12px;
+        padding: 10px;
+      }
+
+      .left-legend {
+        bottom: 10px;
+        left: 10px;
+        width: 180px;
       }
     }
   </style>
 </head>
 <body>
-  <header>🌍 World Air Quality Index (AQI) Map</header>
-  <div id="map"></div>
-  <div class="legend">
-    <h4>Air Quality Levels</h4>
-    <div><span class="color-box" style="background:green"></span>Good (0–50)</div>
-    <div><span class="color-box" style="background:yellow"></span>Moderate (51–100)</div>
-    <div><span class="color-box" style="background:red"></span>Unhealthy (>100)</div>
+  <!-- Header -->
+  <header>
+    <h1>🌍 Air Quality & Emission Map</h1>
+    <button class="logout-btn" onclick="logout()"><a href="{% url 'Logout' %}" style="text-decoration: none;color: white;">Logout</a></button>
+  </header>
+
+  <!-- Map -->
+  <div id="map">
+    <!-- AQI Legend (Right) -->
+    <div class="legend">
+      <h4>Air Quality Levels</h4>
+      <div><span class="color-box" style="background:green"></span>Good (0–50)</div>
+      <div><span class="color-box" style="background:yellow"></span>Moderate (51–100)</div>
+      <div><span class="color-box" style="background:red"></span>Unhealthy (>100)</div>
+    </div>
+
+    <!-- Carbon & Population Legend (Left) -->
+    <div class="left-legend">
+      <h4>Carbon Emission Rate</h4>
+      <div class="gradient-bar carbon-gradient"></div>
+      <small>Low ➜ High (tonnes of CO₂ per capita)</small>
+
+      <h4 style="margin-top:10px;">Population Density</h4>
+      <div class="gradient-bar population-gradient"></div>
+      <small>Low ➜ High (people per km²)</small>
+    </div>
   </div>
 
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   <script>
-    // Create the map
+    // Initialize Map
     const map = L.map("map").setView([20, 0], 2);
 
-    // Add a tile layer
+    // Add Tile Layer
     L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
       attribution: "&copy; OpenStreetMap contributors"
     }).addTo(map);
 
-    // Example AQI data (lat, lon, AQI value)
-    const aqiData = [
-      { name: "Delhi, India", coords: [28.6, 77.2], aqi: 220 },
-      { name: "Beijing, China", coords: [39.9, 116.4], aqi: 180 },
-      { name: "Los Angeles, USA", coords: [34.05, -118.25], aqi: 95 },
-      { name: "São Paulo, Brazil", coords: [-23.55, -46.63], aqi: 70 },
-      { name: "Sydney, Australia", coords: [-33.87, 151.21], aqi: 45 },
-      { name: "London, UK", coords: [51.51, -0.13], aqi: 60 },
-      { name: "Cape Town, South Africa", coords: [-33.92, 18.42], aqi: 40 }
+    // Sample AQI + Carbon + Population data
+    const cityData = [
+      { name: "Delhi, India", coords: [28.6, 77.2], aqi: 220, carbon: 1.9, population: 11320 },
+      { name: "Beijing, China", coords: [39.9, 116.4], aqi: 180, carbon: 7.4, population: 13000 },
+      { name: "Los Angeles, USA", coords: [34.05, -118.25], aqi: 95, carbon: 15.6, population: 3300 },
+      { name: "São Paulo, Brazil", coords: [-23.55, -46.63], aqi: 70, carbon: 2.8, population: 7500 },
+      { name: "Sydney, Australia", coords: [-33.87, 151.21], aqi: 45, carbon: 17.3, population: 430 },
+      { name: "London, UK", coords: [51.51, -0.13], aqi: 60, carbon: 5.8, population: 5600 },
+      { name: "Cape Town, South Africa", coords: [-33.92, 18.42], aqi: 40, carbon: 9.2, population: 1600 }
     ];
 
-    // Function to set color based on AQI
+    // Color by AQI
     function getColor(aqi) {
       if (aqi > 100) return "red";
       else if (aqi >= 51) return "yellow";
       else return "green";
     }
 
-    // Add circles to map
-    aqiData.forEach((loc) => {
-      const color = getColor(loc.aqi);
-      L.circleMarker(loc.coords, {
-        color: color,
+    // Add markers
+    cityData.forEach((city) => {
+      const color = getColor(city.aqi);
+      L.circleMarker(city.coords, {
+        color,
         fillColor: color,
         fillOpacity: 0.7,
         radius: 10
       })
         .addTo(map)
-        .bindPopup(`<b>${loc.name}</b><br>AQI: ${loc.aqi}`);
+        .bindPopup(
+          `<b>${city.name}</b><br>
+          AQI: ${city.aqi}<br>
+          Carbon Emission: ${city.carbon} tCO₂ per capita<br>
+          Population Density: ${city.population} people/km²`
+        );
     });
+
+    // Logout Function
+    function logout() {
+      alert("You have been logged out!");
+      // Redirect example:
+      // window.location.href = "login.html";
+    }
   </script>
 </body>
 </html>
