@@ -1,11 +1,6 @@
 from django.shortcuts import render, redirect
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate, login, logout
-<<<<<<< HEAD
-from django.contrib.auth import authenticate,login,logout
-
-=======
->>>>>>> 599781cf566ca1251e28fb39685931de2c391301
 
 # Create your views here.
 def register(request):
@@ -18,10 +13,6 @@ def register(request):
         email = request.POST["email"]
         passwd = request.POST["password"]
         try:
-<<<<<<< HEAD
-            # Existing user creation code
-=======
->>>>>>> 599781cf566ca1251e28fb39685931de2c391301
             user = User.objects.create_user(username=uname, password=passwd, email=email, first_name=name, last_name=cmpny)
         except Exception as e:
             error_msg = "Username Already Exists"
