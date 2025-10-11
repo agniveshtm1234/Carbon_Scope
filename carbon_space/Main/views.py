@@ -13,5 +13,6 @@ def user_data(request):
 def guest(request):
     return render(request,'Guest.html')
 
+@login_required(login_url='login/')
 def dashboard(request):
     return render(request,'Dashboard.html')
